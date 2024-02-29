@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "install_dependencies.sh",
+    "content": "#!/bin/bash\n\n# התקנת חבילת virtualenv\npip install virtualenv\n\n# יצירת סביבה וירטואלית בשם venv\npython -m virtualenv venv\n\n# הפעלת הסביבה וירטואלית\nsource ./server/venv/bin/activate\n\n# התקנת חבילות Python\npip install -r ./server/requirements.txt\n",
+    "full_path": "C:/Users/internet/Desktop/Daniel/chetbot-4/server\\install_dependencies.sh",
+    "file_type": "application/x-sh"
+  },
+  {
+    "filename": "requirements.txt",
+    "content": "chatterbot==1.0.5\nchatterbot_corpus==1.2.0\nflask==2.1.0\nflask-cors==3.0.10\n",
+    "full_path": "C:/Users/internet/Desktop/Daniel/chetbot-4/server\\requirements.txt",
+    "file_type": "text/plain"
+  },
+  {
+    "filename": "app.py",
+    "content": "from flask import Flask, request, jsonify\nfrom flask_cors import CORS\nfrom chatbot import MyChatBot\nfrom chatbot_trainer import ChatBotTrainer\n\napp = Flask(__name__)\nCORS(app)\n\nchatbot = MyChatBot()\ntrainer = ChatBotTrainer(chatbot)\n\n@app.route('/chat', methods=['POST'])\ndef chat():\n    data = request.json\n    user_input = data.get('user_input', '')\n    response = chatbot.get_response(user_input)\n    return jsonify({'response': str(response)})\n\n@app.route('/add_qa', methods=['POST'])\ndef add_qa():\n    data = request.json\n    question = data.get('question', '')\n    answer = data.get('answer', '')\n    trainer.add_qa_pair(question, answer)\n    return jsonify({'status': 'success'})\n\nif __name__ == '__main__':\n    app.run(port=5000)\n",
+    "full_path": "C:/Users/internet/Desktop/Daniel/chetbot-4/server\\src\\app.py",
+    "file_type": "text/x-python"
+  },
+  {
+    "filename": "chatbot.py",
+    "content": "import json\nfrom chatterbot import ChatBot\nfrom chatterbot.trainers import ChatterBotCorpusTrainer\nfrom chatterbot.conversation import Statement\n\nclass MyChatBot:\n    def __init__(self):\n        self.chatbot = ChatBot('MyChatBot')\n        self.trainer = ChatterBotCorpusTrainer(self.chatbot)\n        self.train_bot()\n\n    def train_bot(self):\n        # Load corpus data from JSON file\n        training_data = self.load_training_data()\n        for item in training_data:\n            self.add_to_corpus(item['question'], item['answer'])\n\n        # Train the model\n        self.trainer.train('chatterbot.corpus.english')\n\n    def get_response(self, user_input):\n        return self.chatbot.get_response(user_input)\n\n    def load_training_data(self):\n        try:\n            with open('training_data.json', 'r', encoding='utf-8') as file:\n                return json.load(file)\n        except (FileNotFoundError, json.JSONDecodeError) as e:\n            print(f\"Error loading training data: {str(e)}\")\n            return []\n\n    def add_to_corpus(self, question, answer):\n        # Add question and answer to the training data file\n        training_data = self.load_training_data()\n        training_data.append({'question': question, 'answer': answer})\n        try:\n            with open('training_data.json', 'w', encoding='utf-8') as file:\n                json.dump(training_data, file, ensure_ascii=False, indent=4)\n        except FileNotFoundError as e:\n            print(f\"Error writing to training data: {str(e)}\")\n\n        # Add question and answer to the model's corpus\n        statement = Statement(text=question, in_response_to=answer)\n        self.chatbot.storage.create(**statement.serialize())",
+    "full_path": "C:/Users/internet/Desktop/Daniel/chetbot-4/server\\src\\chatbot.py",
+    "file_type": "text/x-python"
+  },
+  {
+    "filename": "chatbot_trainer.py",
+    "content": "class ChatBotTrainer:\n    def __init__(self, chatbot):\n        self.chatbot = chatbot\n\n    def add_qa_pair(self, question, answer):\n        self.chatbot.add_to_corpus(question, answer)\n        self.chatbot.train_bot()",
+    "full_path": "C:/Users/internet/Desktop/Daniel/chetbot-4/server\\src\\chatbot_trainer.py",
+    "file_type": "text/x-python"
+  }
+]

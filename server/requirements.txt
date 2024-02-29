@@ -1,0 +1,5 @@
+chatterbot==1.0.5
+chatterbot_corpus==1.2.0
+flask==2.1.0
+flask-cors==3.0.10
+spacy==2.1.9
